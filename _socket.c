@@ -36,7 +36,6 @@ int bind_and_listen(int port) {
 
 
 
-
 int connect_to(char *ip) {
 
 }

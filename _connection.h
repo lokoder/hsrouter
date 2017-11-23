@@ -3,37 +3,6 @@
 
 #include <netinet/in.h>
 
-
-/*
-typedef enum {
-    SERVER,
-    CLIENT
-} node_type;
-
-struct connection {
-    
-    int sock;
-    struct sockaddr_in addr;
-    node_type type;
-    int bytes_recv;
-    int bytes_sent;
-    struct connection *client;
-    struct connection *next;
-};
-
-
-struct connection *new_connection(int sock, struct sockaddr_in *addr, node_type type);
-struct connection *add_connection(struct connection *list, struct connection *node);
-struct connection *remove_connection(struct connection *list, int sock);
-struct connection *get_connection(struct connection *list, int sock);
-
-*/
-
-
-
-
-/* refact */
-
 struct client {
     int id;
     int sock;
