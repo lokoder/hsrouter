@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+
 static const int BUFSIZE = 1024;
 
 
@@ -17,22 +18,20 @@ struct server *servers_list = NULL;
 void *manage_client(void *arg) {
     
     struct client *me = arg;
-
     char buffer[BUFSIZE];
     int bytes;
 
-
     while (1) {
-        bytes = recv(me->sock, buffer, BUFSIZE, 0);
 
-        if (bytes < 0) { //erro... ver quais
+        bytes = recv(me->sock, buffer, BUFSIZE, 0);
+        if (bytes < 0) {
 
             me->server->clients = client_remove(me->server->clients, me->sock);
             close(me->sock);
             d("bytes<0: erro de conexao...");
             pthread_exit(0);
 
-        } else if (bytes == 0) { //o peer fechou a conexão! FIN
+        } else if (bytes == 0) {
             
             me->server->clients = client_remove(me->server->clients, me->sock);
             close(me->sock);
@@ -40,10 +39,10 @@ void *manage_client(void *arg) {
             pthread_exit(0); 
         }                
 
-        printf("%ld - socket: %d - bytes: %d -  conteudo: %s\n", pthread_self(), me->sock, bytes, buffer);
-        send(me->server->sock, buffer, bytes, 0);
-        
+        send(me->server->sock, buffer, bytes, 0);        
         memset(buffer, 0, BUFSIZE);
+
+        printf("%ld - socket: %d - bytes: %d -  conteudo: %s\n", pthread_self(), me->sock, bytes, buffer);
     }
 }
 
@@ -56,32 +55,32 @@ void *manage_server(void *arg) {
     char buffer[BUFSIZE];
     int bytes;
     
-
     while (1) {
 
         bytes = recv(me->sock, buffer, BUFSIZE, 0);
 
-        if (bytes < 0) { //erro... ver quais
+        if (bytes < 0) {
 
             servers_list = server_remove(servers_list, me->sock);
             close(me->sock);
             d("bytes<0: erro de conexao...");
             pthread_exit(0);
 
-        } else if (bytes == 0) { //o peer fechou a conexão! FIN
+        } else if (bytes == 0) {
            
             servers_list = server_remove(servers_list, me->sock);
             close(me->sock); 
             d("conexao encerrada pelo peer..\n");
-           pthread_exit(0);
+            pthread_exit(0);
         }
 
         struct client *c = NULL;
         for (c = me->clients; c != NULL; c = c->next) {
             send(c->sock, buffer, bytes, 0);
         }
-        printf("%ld - socket: %d - bytes: %d -  conteudo: %s\n", pthread_self(), me->sock, bytes, buffer);
         memset(buffer, 0, BUFSIZE);
+
+        printf("%ld - socket: %d - bytes: %d -  conteudo: %s\n", pthread_self(), me->sock, bytes, buffer);
     }
 }
 
@@ -114,8 +113,6 @@ void *process_request(void *arg) {
 
             d("a nova conexao é de um SERVER, criando thread para gerenciar o server...");
 
-            //realizar login ou cadastro
-
             struct sockaddr_in addr = {0};
             socklen_t len = sizeof(struct sockaddr);
             if (getpeername(sock, (struct sockaddr *)&addr, &len)) {
@@ -143,8 +140,6 @@ void *process_request(void *arg) {
             cli->server = servers_list;
             servers_list = client_add(servers_list, cli);
             
-
-            //autenticar o cliente e associá-lo ao server
             pthread_t thread;
             pthread_create(&thread, NULL, manage_client, (void*)cli);
             pthread_exit(0);
